@@ -10,12 +10,9 @@
  */
 package com.zcbspay.platform.channel.simulation.withholding.withholding.service.impl;
 
-import java.util.concurrent.TimeUnit;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 import com.zcbspay.platform.channel.simulation.withholding.withholding.service.WithholdingCacheResultService;
