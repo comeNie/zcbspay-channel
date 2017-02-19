@@ -24,14 +24,14 @@ import com.zcbspay.platform.channel.simulation.withholding.withholding.service.Z
  * @author guojia
  * @version
  * @date 2016年10月13日 下午5:19:16
- * @since 
+ * @since
  */
 @Service
-public class ZlebankToCMBCWithholdingServiceImpl implements
-		ZlebankToCMBCWithholdingService {
+public class ZlebankToCMBCWithholdingServiceImpl implements ZlebankToCMBCWithholdingService {
 
 	@Autowired
 	private CMBCCrossLineQuickPayService cmbcCrossLineQuickPayService;
+
 	/**
 	 *
 	 * @param tradeBean
@@ -39,17 +39,14 @@ public class ZlebankToCMBCWithholdingServiceImpl implements
 	@Override
 	public ResultBean withholding(TradeBean tradeBean) {
 		/**
-		 * 代扣业务流程
-		 * 1。银行卡签约：实名认证，白名单采集
-		 * 2.代扣
-		 * 3.账务处理
+		 * 代扣业务流程 1。银行卡签约：实名认证，白名单采集 2.代扣 3.账务处理
 		 */
 		ResultBean resultBean = cmbcCrossLineQuickPayService.bankSign(tradeBean);
-		
+
 		resultBean = cmbcCrossLineQuickPayService.submitPay(tradeBean);
-		
+
 		cmbcCrossLineQuickPayService.dealWithAccounting(tradeBean.getTxnseqno(), resultBean);
-		
+
 		return resultBean;
 	}
 
