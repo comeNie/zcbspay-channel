@@ -38,8 +38,8 @@ public class ChlSeqNumCheckServiceImpl implements ChlSeqNumCheckService {
     }
 
     @Override
-    public boolean isSysthronizeStatus(String orderId) {
-        PojoTxnsLogUp result = txnsUnionPayDao.findByOrderIdAndStatus(orderId, UPRespStatus.UNKNOWN.getValue(), true);
-        return result == null ? false : true;
+    public PojoTxnsLogUp isSysthronizeStatus(String orderId) {
+        PojoTxnsLogUp result = txnsUnionPayDao.findByOrderIdAndStatus(orderId, UPRespStatus.UNKNOWN.getValue(), false);
+        return result;
     }
 }

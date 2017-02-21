@@ -46,4 +46,15 @@ public interface TxnsUnionPayDao extends BaseDAO<PojoTxnsLogUp> {
      * @param queryTmEnd
      */
     public PojoTxnsLogUp getCheckRecord(String transType, String status, String queryTmBegin, String queryTmEnd);
+
+    /**
+     * 根据订单号查询记录
+     * 
+     * @param orderId
+     * @return
+     */
+    public PojoTxnsLogUp findByOrderId(String orderId);
+
+    public void updateEntity(PojoTxnsLogUp pojoTxnsLogUp);
+
 }

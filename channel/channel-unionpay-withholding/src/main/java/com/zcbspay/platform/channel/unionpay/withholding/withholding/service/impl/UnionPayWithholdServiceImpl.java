@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.frontend.ClientProxyFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.unionpay.dk.vo.MerchantResponse;
 import com.unionpay.dk.vo.QueryResponse;
 import com.unionpay.dk.vo.RspRoot;
@@ -25,6 +25,7 @@ import com.zcbspay.platform.channel.common.bean.QueryTradeBeanUP;
 import com.zcbspay.platform.channel.common.bean.ResultBean;
 import com.zcbspay.platform.channel.common.bean.ReturnInfo;
 import com.zcbspay.platform.channel.common.bean.TradeBeanUP;
+import com.zcbspay.platform.channel.common.bean.TxnsLogUpBean;
 import com.zcbspay.platform.channel.common.bean.unionpay.DownloadRequest;
 import com.zcbspay.platform.channel.common.bean.unionpay.DownloadResponse;
 import com.zcbspay.platform.channel.common.bean.unionpay.DwnReqRoot;
@@ -100,7 +101,7 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
             resultBean = new ResultBean(UPRespInfo.UNKNOWN_TIMEOUT.getValue(), UPRespInfo.UNKNOWN_TIMEOUT.getDisplayName());
         }
         // 更新代扣水流信息
-        chlSeqNumRecService.updateSeqNumStatus(orderId, resultBean);
+        chlSeqNumRecService.updateSeqNumStatusWithhold(orderId, resultBean);
         return resultBean;
     }
 
@@ -175,7 +176,7 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
         // 扣款类型
         reqRoot.setDkType(ParamsUtil.getInstance().getDkType());
         // 扣款金额，单位：分
-        reqRoot.setTransAt(tradeBean.getTransAt());
+        reqRoot.setTransAt(Long.toString(tradeBean.getTransAt()));
         reqRoot.setAtType(ParamsUtil.getInstance().getAtType());
         reqRoot.setTransTm(tradeBean.getTransTm());
 
@@ -206,7 +207,7 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
 
         ResultBean resultBean = new ResultBean();
 
-        if (UPRespInfo.SUCESS.equals(merchantResponse.getRoot().getRespCod())) {
+        if (UPRespInfo.TRADE_SUCESS.getValue().equals(merchantResponse.getRoot().getRespCod())) {
             ReturnInfo retInfo = new ReturnInfo(merchantResponse.getRoot().getRespCod(), merchantResponse.getRoot().getRespMsg());
             resultBean.setResultObj(retInfo);
             resultBean.setResultBool(true);
@@ -250,8 +251,12 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
     public ResultBean queryTrade(QueryTradeBeanUP queryTradeBean) {
         ResultBean resultBean = null;
         // 是否需要同步代扣交易状态
-        if (!chlSeqNumCheckService.isSysthronizeStatus(queryTradeBean.getRefOrderId())) {
-            return new ResultBean("状态已知，无需同步");
+        PojoTxnsLogUp result = chlSeqNumCheckService.isSysthronizeStatus(queryTradeBean.getRefOrderId());
+        if (result != null) {
+            TxnsLogUpBean txnsLogUpBean = new TxnsLogUpBean();
+            BeanUtils.copyProperties(result, txnsLogUpBean);
+            resultBean = new ResultBean(txnsLogUpBean);
+            return resultBean;
         }
         // 创建代扣查询流水
         queryTradeBean.setTransType(TransType.QUERY.getValue());
@@ -269,6 +274,11 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
         }
         // 更新代扣流水和查询流水状态
         chlSeqNumRecService.updateWthDrAndQrySeqNumStatus(orderId, queryTradeBean.getRefOrderId(), resultBean);
+
+        PojoTxnsLogUp serialRec = txnsUnionPayDao.findByOrderId(orderId);
+        TxnsLogUpBean txnsLogUpBean = new TxnsLogUpBean();
+        BeanUtils.copyProperties(serialRec, txnsLogUpBean);
+        resultBean.setResultObj(txnsLogUpBean);
 
         return resultBean;
     }
@@ -320,7 +330,7 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
         logger.info("应答信息：" + queryResponse.getRoot().getRespMsg());
 
         ResultBean resultBean = new ResultBean();
-        if (UPRespInfo.SUCESS.equals(queryResponse.getRoot().getRespCod())) {
+        if (UPRespInfo.QUERY_SUCESS.getValue().equals(queryResponse.getRoot().getRespCod())) {
             ReturnInfo retInfoQry = new ReturnInfo(queryResponse.getRoot().getRespCod(), queryResponse.getRoot().getRespMsg());
             ReturnInfo retInfoWthDr = new ReturnInfo(queryResponse.getRoot().getOrigRespCode(), queryResponse.getRoot().getOrigRespMsg());
             List<ReturnInfo> retInfos = new ArrayList<ReturnInfo>();
@@ -370,8 +380,9 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
             checkResp = new AlyAccChkRespBean();
             checkResp.setDownloadUrl(pojoTxnsLogUp.getDownloadUrl());
             checkResp.setQueryId(pojoTxnsLogUp.getOrderId());
-            checkResp.setQueryTm(pojoTxnsLogUp.getQueryTm());
+            checkResp.setQueryDt(pojoTxnsLogUp.getQueryDt());
             checkResp.setTransDt(pojoTxnsLogUp.getTransDt());
+            checkResp.setSendTm(pojoTxnsLogUp.getSendTm());
             resultBean = new ResultBean(checkResp);
             return resultBean;
         }
@@ -380,6 +391,7 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
         PojoTxnsLogUp txnsLogUp = new PojoTxnsLogUp();
         BeanUtils.copyProperties(applyAccCheckUP, txnsLogUp);
         String orderId = chlSeqNumRecService.recordSeqNum(txnsLogUp);
+        applyAccCheckUP.setQueryId(orderId);
         // 调用银联接口
         try {
             resultBean = applyAccCheckingToUnionPay(applyAccCheckUP);
@@ -389,7 +401,7 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
             resultBean = new ResultBean(UPRespInfo.UNKNOWN_TIMEOUT.getValue(), UPRespInfo.UNKNOWN_TIMEOUT.getDisplayName());
         }
         // 更新流水信息
-        chlSeqNumRecService.updateSeqNumStatus(orderId, resultBean);
+        chlSeqNumRecService.updateSeqNumInfoAlyAccChk(orderId, resultBean);
 
         return resultBean;
     }
@@ -413,7 +425,7 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
         // 指定查询对账的交易日期
         dwnReqRoot.setTransDt(applyAccCheckUP.getTransDt());
         // 传入当日日期
-        dwnReqRoot.setQueryDt(applyAccCheckUP.getQueryTm());
+        dwnReqRoot.setQueryDt(applyAccCheckUP.getQueryDt());
         dwnReqRoot.setQueryId(applyAccCheckUP.getQueryId());
         downloadRequest.setRoot(dwnReqRoot);
         String xml;
@@ -426,7 +438,7 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
         }
         logger.info("外发查询请求参数： " + xml);
         String xmlResp = service.downloadTrans(xml);
-        logger.info("外发查询返回结果： " + xml);
+        logger.info("外发查询返回结果： " + xmlResp);
 
         // 解析返回的XML数据
         DownloadResponse downloadResponse;
@@ -443,13 +455,20 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
         logger.info("返回描述：" + downloadResponse.getRoot().getRespMsg());
 
         ResultBean resultBean = new ResultBean();
-        if (UPRespInfo.SUCESS.equals(downloadResponse.getRoot().getRespCod())) {
+        if (!StringUtils.isEmpty(downloadResponse.getRoot().getDownloadUrl())) {
             resultBean.setResultObj(downloadResponse.getRoot().getDownloadUrl());
             resultBean.setResultBool(true);
         }
         else {
-            resultBean.setErrCode(downloadResponse.getRoot().getRespCod());
-            resultBean.setErrMsg(downloadResponse.getRoot().getRespMsg());
+            String respCode = downloadResponse.getRoot().getRespCod();
+            // 对方应答码不规范，有时会把应答信息赋值到应答码中,此处做兼容处理
+            if (respCode.getBytes().length == respCode.length()) {
+                resultBean.setErrCode(respCode);
+                resultBean.setErrMsg(downloadResponse.getRoot().getRespMsg());
+            }
+            else {
+                resultBean.setErrMsg(respCode + ":" + downloadResponse.getRoot().getRespMsg());
+            }
         }
         return resultBean;
     }

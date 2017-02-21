@@ -14,13 +14,13 @@ public interface ChlSeqNumRecService {
     public String recordSeqNum(PojoTxnsLogUp pojoTxnsLogUp);
 
     /**
-     * 更新流水状态
+     * 更新代扣流水状态
      * 
      * @param seqNum
      * @param resultBean
      * @return
      */
-    public void updateSeqNumStatus(String orderId, ResultBean resultBean);
+    public void updateSeqNumStatusWithhold(String orderId, ResultBean resultBean);
 
     /**
      * 更新代扣流水和查询流水状态
@@ -28,4 +28,14 @@ public interface ChlSeqNumRecService {
      * @param resultBean
      */
     public void updateWthDrAndQrySeqNumStatus(String orderId,String origOrderId, ResultBean resultBean);
+    
+    /**
+     * 更新对账文件申请流水信息
+     * 
+     * @param seqNum
+     * @param resultBean
+     * @return
+     */
+    public void updateSeqNumInfoAlyAccChk(String orderId, ResultBean resultBean);
+
 }

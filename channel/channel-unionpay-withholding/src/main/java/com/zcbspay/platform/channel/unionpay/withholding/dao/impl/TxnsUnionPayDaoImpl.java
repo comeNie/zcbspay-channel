@@ -54,6 +54,7 @@ public class TxnsUnionPayDaoImpl extends HibernateBaseDAOImpl<PojoTxnsLogUp> imp
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PojoTxnsLogUp findByOrderIdAndStatus(String orderId, String status, boolean isEqual) {
         String hql = null;
         if (isEqual) {
@@ -69,8 +70,9 @@ public class TxnsUnionPayDaoImpl extends HibernateBaseDAOImpl<PojoTxnsLogUp> imp
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PojoTxnsLogUp getCheckRecord(String transType, String status, String queryTmBegin, String queryTmEnd) {
-        String hql = "from PojoTxnsLogUp where transType = ? and status =?  and queryTm>=? and queryTm<=?";
+        String hql = "from PojoTxnsLogUp where transType = ? and tradeStatus =?  and sendTm>=? and sendTm<=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, transType);
         query.setString(1, status);
@@ -79,4 +81,17 @@ public class TxnsUnionPayDaoImpl extends HibernateBaseDAOImpl<PojoTxnsLogUp> imp
         return (PojoTxnsLogUp) query.uniqueResult();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public PojoTxnsLogUp findByOrderId(String orderId) {
+        PojoTxnsLogUp pojoTxnsLogUp = (PojoTxnsLogUp) getSession().get(PojoTxnsLogUp.class, orderId);
+        return pojoTxnsLogUp;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
+    public void updateEntity(PojoTxnsLogUp pojoTxnsLogUp) {
+        getSession().update(pojoTxnsLogUp);
+    }
+    
 }

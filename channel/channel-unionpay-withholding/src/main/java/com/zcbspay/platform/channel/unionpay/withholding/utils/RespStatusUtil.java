@@ -43,7 +43,7 @@ public class RespStatusUtil {
     public static String getTradeStatus(String respCode) {
         String resultStatus = null;
 
-        if (UPRespInfo.SUCESS.getValue().equals(respCode)) {
+        if (UPRespInfo.TRADE_SUCESS.getValue().equals(respCode)) {
             resultStatus = UPRespStatus.UNKNOWN.getValue();
         }
         else if (UPRespInfo.UNKNOWN_DATAP.getValue().equals(respCode)) {
