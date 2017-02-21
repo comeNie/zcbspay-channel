@@ -42,9 +42,9 @@ import com.zcbspay.platform.channel.simulation.insteadpay.service.InsteadPayServ
 import com.zcbspay.platform.channel.utils.BeanCopyUtil;
 import com.zcbspay.platform.channel.utils.Constant;
 import com.zcbspay.platform.channel.utils.DateUtil;
+import com.zcbspay.platform.payment.trade.acc.service.InsteadPayAccountingService;
+import com.zcbspay.platform.payment.trade.acc.service.TradeAccountingService;
 import com.zcbspay.platform.support.task.service.TradeNotifyService;
-import com.zcbspay.platform.support.trade.acc.service.InsteadPayAccountingService;
-import com.zcbspay.platform.support.trade.acc.service.TradeAccountingService;
 
 /**
  * Class Description
@@ -115,9 +115,11 @@ public class InsteadPayServiceImpl implements InsteadPayService {
 		resultBean = queryResult(payPartyBean.getPayordno());
 		if(resultBean.isResultBool()){
 			insteadPayRealtimeDAO.updateInsteadSuccess(insteadPayTradeBean.getTxnseqno());
+			txnsLogDAO.updateTradeStatFlag(txnsLog.getTxnseqno(), TradeStatFlagEnum.FINISH_SUCCESS);
 		}else{
 			if(!resultBean.getErrCode().equals("E")){
 				insteadPayRealtimeDAO.updateInsteadFail(insteadPayTradeBean.getTxnseqno(), resultBean.getErrCode(), resultBean.getErrMsg());
+				txnsLogDAO.updateTradeStatFlag(txnsLog.getTxnseqno(), TradeStatFlagEnum.FINISH_FAILED);
 			}else{
 				//加入交易查询队列
 				tradeQueueService.addTradeQueue(txnsLog.getTxnseqno());

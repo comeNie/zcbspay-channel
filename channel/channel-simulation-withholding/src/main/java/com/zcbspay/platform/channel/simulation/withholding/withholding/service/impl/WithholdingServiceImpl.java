@@ -10,11 +10,6 @@
  */
 package com.zcbspay.platform.channel.simulation.withholding.withholding.service.impl;
 
-import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +23,6 @@ import com.zcbspay.platform.channel.simulation.withholding.pojo.PojoTxnsWithhold
 import com.zcbspay.platform.channel.simulation.withholding.withholding.bean.CardMessageBean;
 import com.zcbspay.platform.channel.simulation.withholding.withholding.bean.WhiteListMessageBean;
 import com.zcbspay.platform.channel.simulation.withholding.withholding.bean.WithholdingMessageBean;
-import com.zcbspay.platform.channel.simulation.withholding.withholding.request.bean.RealNameAuthBean;
-import com.zcbspay.platform.channel.simulation.withholding.withholding.request.bean.RealNameAuthQueryBean;
-import com.zcbspay.platform.channel.simulation.withholding.withholding.request.bean.RealTimeWithholdingQueryBean;
-import com.zcbspay.platform.channel.simulation.withholding.withholding.request.bean.WhiteListBean;
-import com.zcbspay.platform.channel.simulation.withholding.withholding.request.bean.WhiteListQueryBean;
 import com.zcbspay.platform.channel.simulation.withholding.withholding.response.bean.RealTimeWithholdingResultBean;
 import com.zcbspay.platform.channel.simulation.withholding.withholding.service.WithholdingService;
 import com.zcbspay.platform.channel.utils.BeanCopyUtil;

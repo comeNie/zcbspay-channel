@@ -49,7 +49,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.zcbspay.platform</groupId>
-			<artifactId>support-trade-acc-api</artifactId>
+			<artifactId>payment-trade-acc-api</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>

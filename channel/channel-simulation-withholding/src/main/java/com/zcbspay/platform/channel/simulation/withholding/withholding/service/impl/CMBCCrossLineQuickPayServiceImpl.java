@@ -37,7 +37,6 @@ import com.zcbspay.platform.channel.simulation.withholding.withholding.service.C
 import com.zcbspay.platform.channel.utils.Constant;
 import com.zcbspay.platform.channel.utils.DateUtil;
 import com.zcbspay.platform.support.task.service.TradeNotifyService;
-import com.zcbspay.platform.support.trade.acc.service.TradeAccountingService;
 
 /**
  * Class Description
