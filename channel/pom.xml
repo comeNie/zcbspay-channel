@@ -269,5 +269,11 @@
     <module>channel-simulation-insteadpay</module>
     <module>channel-simulation</module>
     <module>channel-simulation-simple</module>
+    <module>channel-cnaps-bean</module>
+    <module>channel-cnaps-beps</module>
+    <module>channel-cnaps-ccms</module>
+    <module>channel-cnaps-mq</module>
+    <module>channel-cnaps</module>
+    <module>channel-cnaps-api</module>
   </modules>
 </project>
