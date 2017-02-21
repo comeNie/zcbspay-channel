@@ -17,9 +17,13 @@ public class AlyAccChkRespBean implements Serializable {
 	 */
 	private String queryId;
 	/**
-	 *  发送时间
+	 *  发送日期
 	 */
-	private String queryTm;
+	private String queryDt;
+	/**
+     *  发送时间
+     */
+    private String sendTm;
 	/**
 	 * 交易日期
 	 */
@@ -37,12 +41,12 @@ public class AlyAccChkRespBean implements Serializable {
         this.queryId = queryId;
     }
     
-    public String getQueryTm() {
-        return queryTm;
+    public String getQueryDt() {
+        return queryDt;
     }
     
-    public void setQueryTm(String queryTm) {
-        this.queryTm = queryTm;
+    public void setQueryDt(String queryDt) {
+        this.queryDt = queryDt;
     }
     
     public String getTransDt() {
@@ -61,9 +65,19 @@ public class AlyAccChkRespBean implements Serializable {
         this.downloadUrl = downloadUrl;
     }
 
+    
+    public String getSendTm() {
+        return sendTm;
+    }
+
+    
+    public void setSendTm(String sendTm) {
+        this.sendTm = sendTm;
+    }
+
     @Override
     public String toString() {
-        return "AlyAccChkRespBean [queryId=" + queryId + ", queryTm=" + queryTm + ", transDt=" + transDt + ", downloadUrl=" + downloadUrl + "]";
+        return "AlyAccChkRespBean [queryId=" + queryId + ", queryDt=" + queryDt + ", sendTm=" + sendTm + ", transDt=" + transDt + ", downloadUrl=" + downloadUrl + "]";
     }
 	
 }

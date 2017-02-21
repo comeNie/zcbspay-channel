@@ -10,6 +10,7 @@
  */
 package com.zcbspay.platform.channel.unionpay;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
@@ -18,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import redis.clients.jedis.Jedis;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.rocketmq.client.exception.MQBrokerException;
@@ -31,8 +34,8 @@ import com.zcbspay.platform.channel.unionpay.bean.ResultBean;
 import com.zcbspay.platform.channel.unionpay.enums.WithholdingTagsEnum;
 import com.zcbspay.platform.channel.unionpay.interfaces.Producer;
 import com.zcbspay.platform.channel.unionpay.redis.RedisFactory;
-
-import redis.clients.jedis.Jedis;
+import com.zcbspay.platform.channel.unionpay.util.DateStyle;
+import com.zcbspay.platform.channel.unionpay.util.DateUtil;
 
 /**
  * 银联代扣生产者
@@ -144,11 +147,49 @@ public class WithholdingProducer implements Producer {
 
     public static void main(String[] args) {
         String namesrvAddr = "192.168.209.6:9876";
+        // testWithholding(namesrvAddr);
+        // testQueryWthDrh(namesrvAddr);
+        testApplyAccChecking(namesrvAddr);
+    }
+
+    private static void testApplyAccChecking(String namesrvAddr) {
+        WithholdingTagsEnum tags = WithholdingTagsEnum.fromValue("TAG_009");
+        WithholdingProducer producer = null;
+        try {
+            producer = new WithholdingProducer(namesrvAddr, tags);
+            String message = "{\"queryDt\":\"20170221\",\"transDt\":\"20170221\"}";
+            SendResult sendResult = producer.sendJsonMessage(message, tags);
+            TimeUnit.MILLISECONDS.sleep(5000);
+            ResultBean resultBean = producer.queryReturnResult(sendResult);
+            System.out.println("===result bean:" + resultBean.toString());
+        }
+        catch (MQClientException | RemotingException | InterruptedException | MQBrokerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void testWithholding(String namesrvAddr) {
         WithholdingTagsEnum tags = WithholdingTagsEnum.fromValue("TAG_001");
         WithholdingProducer producer = null;
         try {
             producer = new WithholdingProducer(namesrvAddr, tags);
-            String message = "{\"txnseqno\":\"test0210010\",\"priAcctId\":\"6217001370011446762\",\"name\":\"张三\",\"phone\":\"18912341234\",\"idCard\":\"321123198606045338\",\"transAt\":\"226\",\"transTm\":\"20170210\",\"backUrl\":\"\"}";
+            String message = "{\"txnseqno\":\"test0221002\",\"priAcctId\":\"6228480018543668977\",\"name\":\"马小明\",\"phone\":\"13910249966\",\"idCard\":\"110112198706266666\",\"transAt\":1001,\"transTm\":\"20170221\",\"backUrl\":\"\"}";
+            SendResult sendResult = producer.sendJsonMessage(message, tags);
+            TimeUnit.MILLISECONDS.sleep(5000);
+            ResultBean resultBean = producer.queryReturnResult(sendResult);
+            System.out.println("===result bean:" + resultBean.toString());
+        }
+        catch (MQClientException | RemotingException | InterruptedException | MQBrokerException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void testQueryWthDrh(String namesrvAddr) {
+        WithholdingTagsEnum tags = WithholdingTagsEnum.fromValue("TAG_004");
+        WithholdingProducer producer = null;
+        try {
+            producer = new WithholdingProducer(namesrvAddr, tags);
+            String message = "{\"refOrderId\":\"1702219900000047\"}";
             SendResult sendResult = producer.sendJsonMessage(message, tags);
             TimeUnit.MILLISECONDS.sleep(5000);
             ResultBean resultBean = producer.queryReturnResult(sendResult);

@@ -33,7 +33,7 @@ public class TradeBeanUP implements Serializable, Cloneable {
     /** 身份证号 **/
     private String idCard;
     /** 交易金额 **/
-    private String transAt;
+    private long transAt;
     /** 订单发送时间 **/
     private String transTm;
     /** 后台通知地址 **/
@@ -83,11 +83,11 @@ public class TradeBeanUP implements Serializable, Cloneable {
         this.idCard = idCard;
     }
 
-    public String getTransAt() {
+    public long getTransAt() {
         return transAt;
     }
 
-    public void setTransAt(String transAt) {
+    public void setTransAt(long transAt) {
         this.transAt = transAt;
     }
 

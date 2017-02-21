@@ -28,8 +28,8 @@ public class ApplyAccCheckUP implements Serializable, Cloneable {
     private String transType;
     /** 交易流水号(申请下载对账单文件流水号) **/
     private String queryId;
-    /** 发送时间yyyyMMddhhmmss **/
-    private String queryTm;
+    /** 发送时间yyyyMMdd **/
+    private String queryDt;
     /** 交易日期yyyyMMdd **/
     private String transDt;
 
@@ -49,14 +49,6 @@ public class ApplyAccCheckUP implements Serializable, Cloneable {
         this.queryId = queryId;
     }
 
-    public String getQueryTm() {
-        return queryTm;
-    }
-
-    public void setQueryTm(String queryTm) {
-        this.queryTm = queryTm;
-    }
-
     public String getTransDt() {
         return transDt;
     }
@@ -65,9 +57,17 @@ public class ApplyAccCheckUP implements Serializable, Cloneable {
         this.transDt = transDt;
     }
 
+    public String getQueryDt() {
+        return queryDt;
+    }
+
+    public void setQueryDt(String queryDt) {
+        this.queryDt = queryDt;
+    }
+
     @Override
     public String toString() {
-        return "ApplyAccCheck [transType=" + transType + ", queryId=" + queryId + ", queryTm=" + queryTm + ", transDt=" + transDt + "]";
+        return "ApplyAccCheckUP [transType=" + transType + ", queryId=" + queryId + ", queryDt=" + queryDt + ", transDt=" + transDt + "]";
     }
 
 }
