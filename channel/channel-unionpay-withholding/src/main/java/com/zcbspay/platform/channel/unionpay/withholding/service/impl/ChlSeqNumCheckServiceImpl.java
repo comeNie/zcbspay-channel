@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.zcbspay.platform.channel.common.bean.TradeBeanUP;
+import com.zcbspay.platform.channel.common.bean.TradeBean;
 import com.zcbspay.platform.channel.common.enums.UPRespStatus;
 import com.zcbspay.platform.channel.unionpay.withholding.dao.TxnsUnionPayDao;
 import com.zcbspay.platform.channel.unionpay.withholding.enums.ErrorCodeUP;
@@ -32,7 +32,7 @@ public class ChlSeqNumCheckServiceImpl implements ChlSeqNumCheckService {
     }
 
     @Override
-    public void isOverlimit(TradeBeanUP tradeBean) throws UnionPayException {
+    public void isOverlimit(TradeBean tradeBean) throws UnionPayException {
         // TODO Auto-generated method stub
 
     }

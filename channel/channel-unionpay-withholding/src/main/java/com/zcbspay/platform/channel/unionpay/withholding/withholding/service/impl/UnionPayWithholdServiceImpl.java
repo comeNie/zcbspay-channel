@@ -24,7 +24,7 @@ import com.zcbspay.platform.channel.common.bean.ApplyAccCheckUP;
 import com.zcbspay.platform.channel.common.bean.QueryTradeBeanUP;
 import com.zcbspay.platform.channel.common.bean.ResultBean;
 import com.zcbspay.platform.channel.common.bean.ReturnInfo;
-import com.zcbspay.platform.channel.common.bean.TradeBeanUP;
+import com.zcbspay.platform.channel.common.bean.TradeBean;
 import com.zcbspay.platform.channel.common.bean.TxnsLogUpBean;
 import com.zcbspay.platform.channel.common.bean.unionpay.DownloadRequest;
 import com.zcbspay.platform.channel.common.bean.unionpay.DownloadResponse;
@@ -68,24 +68,31 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
     private SerialNumberService serialNumberService;
 
     @Override
-    public ResultBean withholding(TradeBeanUP tradeBean) {
+    public ResultBean withholding(TradeBean tradeBean) {
         ResultBean resultBean = null;
         String orderId = null;
         try {
             // 判断是否重复代扣
             chlSeqNumCheckService.isRepeatRequest(tradeBean.getTxnseqno());
             // 登记银联代扣流水信息
-            tradeBean.setFactorId(FactorId.CARDNUM_NAME_ID_PHO.getValue());
-            tradeBean.setTransType(TransType.WITHDRAW.getValue());
             PojoTxnsLogUp pojoTxnsLogUp = new PojoTxnsLogUp();
             BeanUtils.copyProperties(tradeBean, pojoTxnsLogUp);
+            pojoTxnsLogUp.setFactorId(FactorId.CARDNUM_NAME_ID_PHO.getValue());
+            pojoTxnsLogUp.setTransType(TransType.WITHDRAW.getValue());
+            pojoTxnsLogUp.setPriAcctId(tradeBean.getCardNo());
+            pojoTxnsLogUp.setName(tradeBean.getAcctName());
+            pojoTxnsLogUp.setPhone(tradeBean.getMobile());
+            pojoTxnsLogUp.setIdCard(tradeBean.getCertId());
+            pojoTxnsLogUp.setTransAt(Long.parseLong(tradeBean.getAmount()));
+            pojoTxnsLogUp.setTransTm(DateUtil.DateToString(new Date(), DateStyle.YYYYMMDD.getValue()));
+
             orderId = chlSeqNumRecService.recordSeqNum(pojoTxnsLogUp);
             // 调用银联代扣接口
             resultBean = withholdingToUnionPay(tradeBean, orderId);
             // 同步轮训查询结果
             String tradeStatus = RespStatusUtil.getTradeStatus(resultBean);
             if (UPRespStatus.UNKNOWN.getValue().equals(tradeStatus)) {
-                resultBean = cycleSysStatus(orderId, tradeBean.getTransTm());
+                resultBean = cycleSysStatus(orderId, DateUtil.DateToString(new Date(), DateStyle.YYYYMMDD.getValue()));
             }
         }
         catch (UnionPayException e) {
@@ -149,13 +156,12 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
      * @return
      * @throws UnionPayException
      */
-    private ResultBean withholdingToUnionPay(TradeBeanUP tradeBean, String orderId) throws UnionPayException {
-
-        String transTm = null;
+    private ResultBean withholdingToUnionPay(TradeBean tradeBean, String orderId) throws UnionPayException {
 
         ClientProxyFactoryBean factory = createFactoryBean();
         TranWebService service = (TranWebService) factory.create();
-        String certFilePath = UnionPayWithholdServiceImpl.class.getResource(ParamsUtil.getInstance().getCertPath()).getFile();
+        String certFilePath = ParamsUtil.getInstance().getCertPath();
+        logger.info("【cert path is 】:" + certFilePath);
         CertHelper certHelper = new CertHelper(certFilePath, ParamsUtil.getInstance().getCertPasswd());
 
         // 发起扣款请求
@@ -166,19 +172,19 @@ public class UnionPayWithholdServiceImpl implements UnionPayWithholdService {
         // 要素编号
         reqRoot.setFactorId(FactorId.CARDNUM_NAME_ID_PHO.getValue());
         // 被扣款卡号
-        reqRoot.setPriAcctId(tradeBean.getPriAcctId());
+        reqRoot.setPriAcctId(tradeBean.getCardNo());
         // 被扣款人姓名
-        reqRoot.setName(tradeBean.getName());
+        reqRoot.setName(tradeBean.getAcctName());
         // 身份证号
-        reqRoot.setIdCard(tradeBean.getIdCard());
+        reqRoot.setIdCard(tradeBean.getCertId());
         // 被扣款卡号预留手机号
-        reqRoot.setPhone(tradeBean.getPhone());
+        reqRoot.setPhone(tradeBean.getMobile());
         // 扣款类型
         reqRoot.setDkType(ParamsUtil.getInstance().getDkType());
         // 扣款金额，单位：分
-        reqRoot.setTransAt(Long.toString(tradeBean.getTransAt()));
+        reqRoot.setTransAt(tradeBean.getAmount());
         reqRoot.setAtType(ParamsUtil.getInstance().getAtType());
-        reqRoot.setTransTm(tradeBean.getTransTm());
+        reqRoot.setTransTm(DateUtil.DateToString(new Date(), DateStyle.YYYYMMDD.getValue()));
 
         String payXML = null;
         try {

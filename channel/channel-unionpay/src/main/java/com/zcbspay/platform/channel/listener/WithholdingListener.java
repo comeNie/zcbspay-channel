@@ -27,7 +27,7 @@ import com.google.common.base.Charsets;
 import com.zcbspay.platform.channel.common.bean.ApplyAccCheckUP;
 import com.zcbspay.platform.channel.common.bean.QueryTradeBeanUP;
 import com.zcbspay.platform.channel.common.bean.ResultBean;
-import com.zcbspay.platform.channel.common.bean.TradeBeanUP;
+import com.zcbspay.platform.channel.common.bean.TradeBean;
 import com.zcbspay.platform.channel.enums.WithholdingTagsEnum;
 import com.zcbspay.platform.channel.unionpay.withholding.withholding.service.WithholdingCacheResultService;
 import com.zcbspay.platform.channel.unionpay.withholding.withholding.service.ZcbsToUnionPayWithholdingService;
@@ -69,7 +69,7 @@ public class WithholdingListener implements MessageListenerConcurrently {
                     json = new String(msg.getBody(), Charsets.UTF_8);
                     log.info("接收到的MSG:" + json);
                     log.info("接收到的MSGID:" + msg.getMsgId());
-                    TradeBeanUP tradeBean = JSON.parseObject(json, TradeBeanUP.class);
+                    TradeBean tradeBean = JSON.parseObject(json, TradeBean.class);
                     if (tradeBean == null) {
                         log.warn("MSGID:{}JSON转换后为NULL,无法生成订单数据,原始消息数据为{}", msg.getMsgId(), json);
                         break;

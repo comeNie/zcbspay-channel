@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.zcbspay.platform.channel.common.bean.ApplyAccCheckUP;
 import com.zcbspay.platform.channel.common.bean.QueryTradeBeanUP;
 import com.zcbspay.platform.channel.common.bean.ResultBean;
-import com.zcbspay.platform.channel.common.bean.TradeBeanUP;
+import com.zcbspay.platform.channel.common.bean.TradeBean;
 import com.zcbspay.platform.channel.unionpay.withholding.withholding.service.UnionPayWithholdService;
 import com.zcbspay.platform.channel.unionpay.withholding.withholding.service.ZcbsToUnionPayWithholdingService;
 
@@ -17,7 +17,7 @@ public class ZcbsToUnionPayWithholdingServiceImpl implements ZcbsToUnionPayWithh
     private UnionPayWithholdService unionPayWithholdService;
 
     @Override
-    public ResultBean withholding(TradeBeanUP tradeBean) {
+    public ResultBean withholding(TradeBean tradeBean) {
         // 代扣
         ResultBean resultBean = unionPayWithholdService.withholding(tradeBean);
         return resultBean;

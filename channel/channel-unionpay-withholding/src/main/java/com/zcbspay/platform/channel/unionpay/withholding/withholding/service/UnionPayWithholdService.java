@@ -3,7 +3,7 @@ package com.zcbspay.platform.channel.unionpay.withholding.withholding.service;
 import com.zcbspay.platform.channel.common.bean.ApplyAccCheckUP;
 import com.zcbspay.platform.channel.common.bean.QueryTradeBeanUP;
 import com.zcbspay.platform.channel.common.bean.ResultBean;
-import com.zcbspay.platform.channel.common.bean.TradeBeanUP;
+import com.zcbspay.platform.channel.common.bean.TradeBean;
 
 /**
  * 银联代扣相关服务
@@ -19,7 +19,7 @@ public interface UnionPayWithholdService {
 	 * @param tradeBean
 	 * @return
 	 */
-	public ResultBean withholding(TradeBeanUP tradeBean);
+	public ResultBean withholding(TradeBean tradeBean);
 
 	/**
 	 * 交易状态查询交易

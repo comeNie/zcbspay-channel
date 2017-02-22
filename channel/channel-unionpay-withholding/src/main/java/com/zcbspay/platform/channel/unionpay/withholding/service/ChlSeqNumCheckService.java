@@ -1,6 +1,6 @@
 package com.zcbspay.platform.channel.unionpay.withholding.service;
 
-import com.zcbspay.platform.channel.common.bean.TradeBeanUP;
+import com.zcbspay.platform.channel.common.bean.TradeBean;
 import com.zcbspay.platform.channel.common.exception.BaseException;
 import com.zcbspay.platform.channel.unionpay.withholding.exception.UnionPayException;
 import com.zcbspay.platform.channel.unionpay.withholding.pojo.PojoTxnsLogUp;
@@ -21,7 +21,7 @@ public interface ChlSeqNumCheckService {
      * @param tradeBean
      * @throws BaseException
      */
-    public void isOverlimit(TradeBeanUP tradeBean) throws UnionPayException;
+    public void isOverlimit(TradeBean tradeBean) throws UnionPayException;
 
     /**
      * 是否需要查询同步状态

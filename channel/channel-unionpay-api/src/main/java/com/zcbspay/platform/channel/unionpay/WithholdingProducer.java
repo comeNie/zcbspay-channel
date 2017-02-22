@@ -146,10 +146,10 @@ public class WithholdingProducer implements Producer {
     }
 
     public static void main(String[] args) {
-        String namesrvAddr = "192.168.209.6:9876";
-        // testWithholding(namesrvAddr);
+        String namesrvAddr = "192.168.1.26:9876";
+        testWithholding(namesrvAddr);
         // testQueryWthDrh(namesrvAddr);
-        testApplyAccChecking(namesrvAddr);
+        // testApplyAccChecking(namesrvAddr);
     }
 
     private static void testApplyAccChecking(String namesrvAddr) {
@@ -173,7 +173,7 @@ public class WithholdingProducer implements Producer {
         WithholdingProducer producer = null;
         try {
             producer = new WithholdingProducer(namesrvAddr, tags);
-            String message = "{\"txnseqno\":\"test0221002\",\"priAcctId\":\"6228480018543668977\",\"name\":\"马小明\",\"phone\":\"13910249966\",\"idCard\":\"110112198706266666\",\"transAt\":1001,\"transTm\":\"20170221\",\"backUrl\":\"\"}";
+            String message = "{\"txnseqno\":\"test0222002\",\"cardNo\":\"6228480018543668977\",\"acctName\":\"马小明\",\"mobile\":\"13910249966\",\"certId\":\"110112198706266666\",\"amount\":1001}";
             SendResult sendResult = producer.sendJsonMessage(message, tags);
             TimeUnit.MILLISECONDS.sleep(5000);
             ResultBean resultBean = producer.queryReturnResult(sendResult);
