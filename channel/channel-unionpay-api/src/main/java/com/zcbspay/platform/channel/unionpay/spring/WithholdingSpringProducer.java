@@ -64,7 +64,7 @@ public class WithholdingSpringProducer implements Producer {
         producer.setNamesrvAddr(namesrvAddr);
         Random random = new Random();
         producer.setInstanceName(RESOURCE.getString("unionpay.withholding.instancename") + random.nextInt(9999));
-        topic = RESOURCE.getString("unionpay.insteadpay.subscribe");
+        topic = RESOURCE.getString("unionpay.withholding.subscribe");
         logger.info("【初始化WithholdingSpringProducer结束】");
         producer.start();
     }
