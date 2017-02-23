@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.zcbspay.platform</groupId>
-  <artifactId>channel</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+	<groupId>com.zcbspay.platform</groupId>
+	<artifactId>channel</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-   <properties>
+	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<project.nexus>http://localhost:8081</project.nexus>
+		<project.nexus>http://192.168.1.48:8081</project.nexus>
 		<project.remoteArtifactRepositories>${project.nexus}/nexus/content/groups/public</project.remoteArtifactRepositories>
 		<sonar.language>java</sonar.language>
 		<skipTests>true</skipTests>
@@ -262,18 +263,25 @@
 			<url>${project.nexus}/nexus/content/repositories/snapshots</url>
 		</snapshotRepository>
 	</distributionManagement>
-  <modules>
-    <module>channel-simulation-api</module>
-    <module>channel-common</module>
-    <module>channel-simulation-withholding</module>
-    <module>channel-simulation-insteadpay</module>
-    <module>channel-simulation</module>
-    <module>channel-simulation-simple</module>
-    <module>channel-cnaps-bean</module>
-    <module>channel-cnaps-beps</module>
-    <module>channel-cnaps-ccms</module>
-    <module>channel-cnaps-mq</module>
-    <module>channel-cnaps</module>
-    <module>channel-cnaps-api</module>
-  </modules>
+
+
+	<modules>
+		<module>channel-simulation-api</module>
+		<module>channel-common</module>
+		<module>channel-simulation-withholding</module>
+		<module>channel-simulation-insteadpay</module>
+		<module>channel-simulation</module>
+		<module>channel-simulation-simple</module>
+		<module>channel-unionpay</module>
+		<module>channel-unionpay-api</module>
+		<module>channel-unionpay-insteadpay</module>
+		<module>channel-unionpay-simple</module>
+		<module>channel-unionpay-withholding</module>
+		<module>channel-cnaps-bean</module>
+		<module>channel-cnaps-beps</module>
+		<module>channel-cnaps-ccms</module>
+		<module>channel-cnaps-mq</module>
+		<module>channel-cnaps</module>
+		<module>channel-cnaps-api</module>
+	</modules>
 </project>
