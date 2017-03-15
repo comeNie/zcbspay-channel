@@ -26,11 +26,13 @@ import com.alibaba.rocketmq.common.message.MessageExt;
 import com.google.common.base.Charsets;
 import com.zcbspay.platform.channel.common.bean.ResultBean;
 import com.zcbspay.platform.channel.common.bean.TradeBean;
+import com.zcbspay.platform.channel.simulation.consumer.enums.InsteadPayTagsEnum;
 import com.zcbspay.platform.channel.simulation.consumer.enums.WithholdingTagsEnum;
 import com.zcbspay.platform.channel.simulation.withholding.exception.CMBCTradeException;
 import com.zcbspay.platform.channel.simulation.withholding.withholding.service.CMBCCrossLineQuickPayService;
 import com.zcbspay.platform.channel.simulation.withholding.withholding.service.CMBCRealNameAuthService;
 import com.zcbspay.platform.channel.simulation.withholding.withholding.service.CMBCWithholdingService;
+import com.zcbspay.platform.channel.simulation.withholding.withholding.service.ConcentrateCollectionService;
 import com.zcbspay.platform.channel.simulation.withholding.withholding.service.WithholdingCacheResultService;
 import com.zcbspay.platform.channel.simulation.withholding.withholding.service.ZlebankToCMBCWithholdingService;
 
@@ -59,6 +61,8 @@ public class WithholdingListener implements MessageListenerConcurrently{
 	private CMBCWithholdingService cmbcWithholdingService;
 	@Autowired
 	private CMBCCrossLineQuickPayService cmbcCrossLineQuickPayService;
+	@Autowired
+	private ConcentrateCollectionService concentrateCollectionService; 
 	/**
 	 *
 	 * @param msgs
@@ -136,6 +140,28 @@ public class WithholdingListener implements MessageListenerConcurrently{
 						break;
 					}
 					ResultBean resultBean = cmbcWithholdingService.queryCrossLineTrade(tradeBean.getTxnseqno());
+					withholdingCacheResultService.saveWithholdingResult(KEY + msg.getMsgId(), JSON.toJSONString(resultBean));
+				}else if(withholdingTagsEnum == WithholdingTagsEnum.REALTIME_COLLECTION_CONCENTRATE){
+					json = new String(msg.getBody(), Charsets.UTF_8);
+					log.info("接收到的MSG:" + json);
+					log.info("接收到的MSGID:" + msg.getMsgId());
+					TradeBean tradeBean = JSON.parseObject(json,TradeBean.class);
+					if (tradeBean == null) {
+						log.warn("MSGID:{}JSON转换后为NULL,无法生成订单数据,原始消息数据为{}",msg.getMsgId(), json);
+						break;
+					}
+					ResultBean resultBean = concentrateCollectionService.realTimeCollection(tradeBean);
+					withholdingCacheResultService.saveWithholdingResult(KEY + msg.getMsgId(), JSON.toJSONString(resultBean));
+				}else if(withholdingTagsEnum == WithholdingTagsEnum.BATCH_COLLECTION_CONCENTRATE){
+					json = new String(msg.getBody(), Charsets.UTF_8);
+					log.info("接收到的MSG:" + json);
+					log.info("接收到的MSGID:" + msg.getMsgId());
+					TradeBean tradeBean = JSON.parseObject(json,TradeBean.class);
+					if (tradeBean == null) {
+						log.warn("MSGID:{}JSON转换后为NULL,无法生成订单数据,原始消息数据为{}",msg.getMsgId(), json);
+						break;
+					}
+					ResultBean resultBean = concentrateCollectionService.batchCollection(tradeBean);
 					withholdingCacheResultService.saveWithholdingResult(KEY + msg.getMsgId(), JSON.toJSONString(resultBean));
 				}
 				

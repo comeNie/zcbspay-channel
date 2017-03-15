@@ -277,11 +277,5 @@
 		<module>channel-unionpay-insteadpay</module>
 		<module>channel-unionpay-simple</module>
 		<module>channel-unionpay-withholding</module>
-		<module>channel-cnaps-bean</module>
-		<module>channel-cnaps-beps</module>
-		<module>channel-cnaps-ccms</module>
-		<module>channel-cnaps-mq</module>
-		<module>channel-cnaps</module>
-		<module>channel-cnaps-api</module>
 	</modules>
 </project>

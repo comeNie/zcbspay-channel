@@ -56,7 +56,16 @@ public enum WithholdingTagsEnum {
 	/**
 	 * 代扣交易查询并处理账务
 	 */
-	WITHHOLDING_QUERY_ACCOUNTING("TAG_009")
+	WITHHOLDING_QUERY_ACCOUNTING("TAG_009"),
+	
+	/**
+	 * 实时集中代收
+	 */
+	REALTIME_COLLECTION_CONCENTRATE("TAG_010"),
+	/**
+	 * 批量集中代收
+	 */
+	BATCH_COLLECTION_CONCENTRATE("TAG_011")
 	;
 	private String code;
 

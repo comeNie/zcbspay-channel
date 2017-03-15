@@ -30,6 +30,7 @@ import com.zcbspay.platform.channel.common.bean.SingleReexchangeBean;
 import com.zcbspay.platform.channel.common.bean.TradeBean;
 import com.zcbspay.platform.channel.simulation.consumer.enums.InsteadPayTagsEnum;
 import com.zcbspay.platform.channel.simulation.insteadpay.exception.CMBCTradeException;
+import com.zcbspay.platform.channel.simulation.insteadpay.service.ConcentratePaymentService;
 import com.zcbspay.platform.channel.simulation.insteadpay.service.InsteadPayCacheResultService;
 import com.zcbspay.platform.channel.simulation.insteadpay.service.InsteadPayService;
 
@@ -51,6 +52,8 @@ public class InsteadPayListener implements MessageListenerConcurrently{
 	private InsteadPayService insteadPayService;
 	@Autowired
 	private InsteadPayCacheResultService insteadPayCacheResultService;
+	@Autowired
+	private ConcentratePaymentService concentratePaymentService;
 	/**
 	 *
 	 * @param msgs
@@ -117,6 +120,26 @@ public class InsteadPayListener implements MessageListenerConcurrently{
 						insteadPayService.queryAndAccounting(tradeBean.getTxnseqno());
 					} catch (Throwable e) {
 						// TODO: handle exception
+					}
+				}else if(insteadPayTagsEnum==InsteadPayTagsEnum.REALTIME_PAYMENT_CONCENTRATE){
+					String json  = new String(msg.getBody(), Charsets.UTF_8);
+					log.info("接收到的MSG:" + json);
+					log.info("接收到的MSGID:" + msg.getMsgId());
+					TradeBean tradeBean = JSON.parseObject(json,TradeBean.class);
+					if (tradeBean == null) {
+						log.warn("MSGID:{}JSON转换后为NULL,无法生成订单数据,原始消息数据为{}",msg.getMsgId(), json);
+						break;
+					}
+					ResultBean resultBean = concentratePaymentService.realTimePayment(tradeBean);
+					insteadPayCacheResultService.saveInsteadPayResult(KEY + msg.getMsgId(), JSON.toJSONString(resultBean));
+				}else if(insteadPayTagsEnum==InsteadPayTagsEnum.BATCH_PAYMENT_CONCENTRATE){
+					String json  = new String(msg.getBody(), Charsets.UTF_8);
+					log.info("接收到的MSG:" + json);
+					log.info("接收到的MSGID:" + msg.getMsgId());
+					TradeBean tradeBean = JSON.parseObject(json,TradeBean.class);
+					if (tradeBean == null) {
+						log.warn("MSGID:{}JSON转换后为NULL,无法生成订单数据,原始消息数据为{}",msg.getMsgId(), json);
+						break;
 					}
 				}
 

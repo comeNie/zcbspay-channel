@@ -45,7 +45,17 @@ public enum InsteadPayTagsEnum {
 	/**
 	 * 民生实时代付查询并处理账务
 	 */
-	QUERY_INSTEADPAY_REALTIME_ACCOUNTING("TAG_IP_006");
+	QUERY_INSTEADPAY_REALTIME_ACCOUNTING("TAG_IP_006"),
+	
+	/**
+	 * 实时集中代付
+	 */
+	REALTIME_PAYMENT_CONCENTRATE("TAG_IP_007"),
+	/**
+	 * 批量集中代付
+	 */
+	BATCH_PAYMENT_CONCENTRATE("TAG_IP_008")
+	;
 	private String code;
 
 	/**

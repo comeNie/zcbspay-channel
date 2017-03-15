@@ -97,7 +97,7 @@ public class PojoTxnsLog implements Serializable {
 	private String acccoopinstino;
 	private String panName;
 	private String productcode;
-
+	private String inpanName;
 	// Property accessors
 	@Id
 	@Column(name = "TXNSEQNO", unique = true, nullable = false, length = 16)
@@ -689,6 +689,14 @@ public class PojoTxnsLog implements Serializable {
 	 */
 	public void setProductcode(String productcode) {
 		this.productcode = productcode;
+	}
+	@Column(name = "INPAN_NAME")
+	public String getInpanName() {
+		return inpanName;
+	}
+
+	public void setInpanName(String inpanName) {
+		this.inpanName = inpanName;
 	}
 
 }
