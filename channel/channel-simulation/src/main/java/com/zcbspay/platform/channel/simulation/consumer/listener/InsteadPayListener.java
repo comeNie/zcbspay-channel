@@ -141,6 +141,7 @@ public class InsteadPayListener implements MessageListenerConcurrently{
 						log.warn("MSGID:{}JSON转换后为NULL,无法生成订单数据,原始消息数据为{}",msg.getMsgId(), json);
 						break;
 					}
+					concentratePaymentService.batchPayment(tradeBean);
 				}
 
 			}
@@ -148,10 +149,4 @@ public class InsteadPayListener implements MessageListenerConcurrently{
 		}
 		return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
 	}
-
-	/*public static void main(String[] args) {
-		
-		String json ="{\"acc_name\":\"郭佳\",\"acc_no\":\"6228480018543668976\",\"bank_name\":\"\",\"bank_type\":\"\",\"remark\":\"测试\",\"trans_amt\":\"10\"}";
-		InsteadPayTradeBean tradeBean = JSON.parseObject(json,InsteadPayTradeBean.class);
-	}*/
 }

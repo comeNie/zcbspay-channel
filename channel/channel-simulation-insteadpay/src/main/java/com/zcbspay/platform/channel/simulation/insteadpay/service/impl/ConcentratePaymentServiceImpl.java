@@ -1,5 +1,6 @@
 package com.zcbspay.platform.channel.simulation.insteadpay.service.impl;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
@@ -19,10 +20,12 @@ import com.zcbspay.platform.channel.dao.TxnsLogDAO;
 import com.zcbspay.platform.channel.pojo.PojoRspmsg;
 import com.zcbspay.platform.channel.pojo.PojoTxnsLog;
 import com.zcbspay.platform.channel.simulation.insteadpay.bean.RealTimePayBean;
-import com.zcbspay.platform.channel.simulation.insteadpay.dao.InsteadPayRealtimeDAO;
+import com.zcbspay.platform.channel.simulation.insteadpay.dao.OrderPaymentBatchDAO;
+import com.zcbspay.platform.channel.simulation.insteadpay.dao.OrderPaymentDetaDAO;
 import com.zcbspay.platform.channel.simulation.insteadpay.dao.OrderPaymentSingleDAO;
 import com.zcbspay.platform.channel.simulation.insteadpay.dao.TxnsCmbcInstPayLogDAO;
-import com.zcbspay.platform.channel.simulation.insteadpay.exception.CMBCTradeException;
+import com.zcbspay.platform.channel.simulation.insteadpay.pojo.OrderPaymentBatchDO;
+import com.zcbspay.platform.channel.simulation.insteadpay.pojo.OrderPaymentDetaDO;
 import com.zcbspay.platform.channel.simulation.insteadpay.pojo.PojoTxnsCmbcInstPayLog;
 import com.zcbspay.platform.channel.simulation.insteadpay.queue.service.TradeQueueService;
 import com.zcbspay.platform.channel.simulation.insteadpay.sequence.service.SerialNumberService;
@@ -46,26 +49,17 @@ public class ConcentratePaymentServiceImpl implements ConcentratePaymentService 
 	private TxnsCmbcInstPayLogDAO txnsCmbcInstPayLogDAO;
 	@Autowired
 	private RspmsgDAO rspmsgDAO;
-	@Reference(version="1.0")
-	private TradeAccountingService tradeAccountingService;
-	
-	@Reference(version="1.0")
-	private TradeNotifyService tradeNotifyService;
-	@Reference(version="1.0")
-	private InsteadPayAccountingService insteadPayAccountingService;
 	@Autowired
 	private TradeQueueService tradeQueueService;
 	@Autowired
 	private OrderPaymentSingleDAO orderPaymentSingleDAO;
+	@Autowired
+	private OrderPaymentBatchDAO orderPaymentBatchDAO;
+	@Autowired
+	private OrderPaymentDetaDAO orderPaymentDetaDAO;
+	
 	@Override
 	public ResultBean realTimePayment(TradeBean tradeBean) {
-		/**
-		 * 实时代付业务流程：
-		 * 1.获取交易日志数据
-		 * 2.校验交易日志数据，如果是成功的交易拒绝，失败的交易或者未交易的通过
-		 * 3.更新支付方数据
-		 * 4.记录渠道交易流水
-		 */
 		PojoTxnsLog txnsLog = txnsLogDAO.getTxnsLogByTxnseqno(tradeBean.getTxnseqno());
 		if(txnsLog==null){
 			return null;
@@ -78,7 +72,6 @@ public class ConcentratePaymentServiceImpl implements ConcentratePaymentService 
 				Constant.getInstance().getCmbc_insteadpay_merid(), "",
 				DateUtil.getCurrentDateTime(), "", "");
 		txnsLogDAO.updatePayInfo(payPartyBean);
-		
 		InsteadPayTradeBean insteadPayTradeBean = new InsteadPayTradeBean();
 		insteadPayTradeBean.setTxnseqno(tradeBean.getTxnseqno());
 		insteadPayTradeBean.setAcc_name(txnsLog.getInpanName());
@@ -86,7 +79,6 @@ public class ConcentratePaymentServiceImpl implements ConcentratePaymentService 
 		insteadPayTradeBean.setBank_type(txnsLog.getIncardinstino());
 		insteadPayTradeBean.setBank_name("TEST BANK");
 		insteadPayTradeBean.setTrans_amt(txnsLog.getAmount().toString());
-		
 		
 		PojoTxnsCmbcInstPayLog cmbcInstPayLog = new PojoTxnsCmbcInstPayLog(insteadPayTradeBean);
 		cmbcInstPayLog.setTranId(payPartyBean.getPayordno());
@@ -156,7 +148,51 @@ public class ConcentratePaymentServiceImpl implements ConcentratePaymentService 
 	}
 	@Override
 	public ResultBean batchPayment(TradeBean tradeBean) {
-		// TODO Auto-generated method stub
+		OrderPaymentBatchDO paymentBatchOrder = orderPaymentBatchDAO.getPaymentBatchOrderByTn(tradeBean.getTn());
+		List<OrderPaymentDetaDO> detaList = orderPaymentDetaDAO.getDetaListByBatchtid(paymentBatchOrder.getTid());
+		for(OrderPaymentDetaDO orderDeta : detaList){
+			PojoTxnsLog txnsLog = txnsLogDAO.getTxnsLogByTxnseqno(orderDeta.getRelatetradetxn());
+			if(txnsLog==null){
+				return null;
+			}
+			InsteadPayTradeBean insteadPayTradeBean = new InsteadPayTradeBean();
+			insteadPayTradeBean.setTxnseqno(txnsLog.getTxnseqno());
+			insteadPayTradeBean.setAcc_name(txnsLog.getInpanName());
+			insteadPayTradeBean.setAcc_no(txnsLog.getInpan());
+			insteadPayTradeBean.setBank_type(txnsLog.getIncardinstino());
+			insteadPayTradeBean.setBank_name("TEST BANK");
+			insteadPayTradeBean.setTrans_amt(txnsLog.getAmount().toString());
+			
+			PayPartyBean payPartyBean = new PayPartyBean(orderDeta.getRelatetradetxn(),
+					"04", serialNumberService.generateCMBCInsteadPaySerialNo(), ChannelEnmu.CMBCINSTEADPAY_REALTIME.getChnlcode(),
+					Constant.getInstance().getCmbc_insteadpay_merid(), "",
+					DateUtil.getCurrentDateTime(), "", "");
+			txnsLogDAO.updatePayInfo(payPartyBean);
+			PojoTxnsCmbcInstPayLog cmbcInstPayLog = new PojoTxnsCmbcInstPayLog(insteadPayTradeBean);
+			cmbcInstPayLog.setTranId(payPartyBean.getPayordno());
+			txnsCmbcInstPayLogDAO.savePayLog(cmbcInstPayLog);
+			RealTimePayBean realTimePayBean = new RealTimePayBean(insteadPayTradeBean);
+			realTimePayBean.setTranId(payPartyBean.getPayordno());
+			ResultBean resultBean = cmbcInsteadPayService.realTimeInsteadPay(realTimePayBean);
+			txnsLogDAO.updateTradeStatFlag(txnsLog.getTxnseqno(), TradeStatFlagEnum.PAYING);
+			resultBean = queryResult(payPartyBean.getPayordno());
+			if(resultBean.isResultBool()){
+				orderPaymentDetaDAO.updateOrderToSuccess(insteadPayTradeBean.getTxnseqno(),"0000","交易成功");
+				txnsLogDAO.updateTradeStatFlag(txnsLog.getTxnseqno(), TradeStatFlagEnum.FINISH_SUCCESS);
+			}else{
+				if(!resultBean.getErrCode().equals("E")){
+					orderPaymentDetaDAO.updateOrderToFail(insteadPayTradeBean.getTxnseqno(),resultBean.getErrCode(),resultBean.getErrMsg());
+					txnsLogDAO.updateTradeStatFlag(txnsLog.getTxnseqno(), TradeStatFlagEnum.FINISH_FAILED);
+				}else{
+					//加入交易查询队列
+					tradeQueueService.addTradeQueue(txnsLog.getTxnseqno());
+					return resultBean;
+				}
+				
+			}
+			dealWithInsteadPay(payPartyBean.getPayordno());
+		}
+		orderPaymentBatchDAO.updateOrderToSuccess(tradeBean.getTn());
 		return null;
 	}
 

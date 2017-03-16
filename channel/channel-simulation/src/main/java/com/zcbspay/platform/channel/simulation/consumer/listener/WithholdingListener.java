@@ -161,8 +161,7 @@ public class WithholdingListener implements MessageListenerConcurrently{
 						log.warn("MSGID:{}JSON转换后为NULL,无法生成订单数据,原始消息数据为{}",msg.getMsgId(), json);
 						break;
 					}
-					ResultBean resultBean = concentrateCollectionService.batchCollection(tradeBean);
-					withholdingCacheResultService.saveWithholdingResult(KEY + msg.getMsgId(), JSON.toJSONString(resultBean));
+					concentrateCollectionService.batchCollection(tradeBean);
 				}
 				
 
